@@ -1,3 +1,5 @@
+import java.util.*;
+
 public class Cellule
 {
 	private Cellule precedent;
@@ -49,7 +51,7 @@ public class Cellule
 		return false;
 	}
 
-	public Cellule[] copy(){
+	public Cellule[] copie(){
 		Cellule aux=this;
 		Cellule init= new Cellule(position);
 		Cellule last = init;
@@ -61,5 +63,14 @@ public class Cellule
 		}
 		Cellule[] res = {init, last};
 		return res;
+	}
+
+	public void pourAfficher(ArrayList<int[]> res)
+	{
+		res.add(position);
+		if(suivant != null)
+		{
+			suivant.pourAfficher(res);
+		}
 	}
 }

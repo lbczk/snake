@@ -5,20 +5,22 @@ public class Config{
 	Config[] suivants = new Config[4];
 
 	static ArrayList<int[]> vitesses = new ArrayList<int[]>();
+	final int PREV_PROF = 6;
 
 	static void setVitesses(){
-		vitesses.add(Serpent.vel_down);
-		vitesses.add(Serpent.vel_left);
-		vitesses.add(Serpent.vel_right);
-		vitesses.add(Serpent.vel_up);
+		vitesses.add(Creature.vel_down);
+		vitesses.add(Creature.vel_left);
+		vitesses.add(Creature.vel_right);
+		vitesses.add(Creature.vel_up);
 	}
 
 	public Config(Etat present){
 		this.present = present;
 		Config.setVitesses();
-		this.ajout();
-		this.ajout();
-		this.ajout();
+		for(int i=0;i<PREV_PROF;i++)
+		{
+			this.ajout();
+		}
 	}
 
 	public Config(Etat present, int[] v){
@@ -26,46 +28,49 @@ public class Config{
 	}
 
 	public void ajout(){
-		if(suivants == null)
-		{
-			System.out.print("blabla");
-		}
-
-		for(int i=0; i < 4;i++){
+		for(int i=0; i <  Creature.nb_vitesses; i++){
 			if(suivants[i] == null){
 				int[] v = Config.vitesses.get(i);
 				suivants[i] = new Config(present, v);
-				if(suivants[i].present.getSeMord())
-				{
-					suivants[i] = null;
-				}
 			}
 			else if(!suivants[i].present.getSeMord()){
+				if(present.getDistance() == 0)
+				{
+					suivants[i].present.setDistance(0);
+				}
 				suivants[i].ajout();
 			}
 		}
 	
 	}
 
-	public int argmin()
+	public void remove_suivants(int j)
+	{
+		for(int i=0; i< Creature.nb_vitesses; i++)
+		{
+			if(i != j && suivants[i] != null){suivants[i].present.setSeMord(true);}
+		}
+	}
+
+	public int argmin(int k)
 	{
 		if(present.getSeMord())
 		{
 			return 1000;
 		}
-		int res =  present.getDistance();
-		if(res == 0 && !present.getSeMord())
-		{
-			return 0;
-		}
+
+		int res = present.getDistance();
+		if(k==0) return res;
+
 		int aux;
-		for(int j=0; j<4; j++)
+		for(int j=0; j < Creature.nb_vitesses; j++)
 		{
-			if(suivants[j] != null && !suivants[j].present.getSeMord() && (aux = suivants[j].argmin()) < res)
+			if(suivants[j] != null && !suivants[j].present.getSeMord() && (aux = suivants[j].argmin(k-1)) < res)
 			{
 				res = aux;
 				if(aux == 0)
 				{
+					this.remove_suivants(j);
 					return 0;
 				}
 			}
@@ -76,12 +81,12 @@ public class Config{
 	public int[] find_vel()
 	{
 		int i=0;
-		int d = 1000;
-		for(int j=0; j<4;j++)
+		int d=1000;
+		for(int j=0; j < Creature.nb_vitesses;j++)
 		{
 			if(suivants[j] != null)
 			{
-			int dd = suivants[j].argmin();
+			int dd = suivants[j].argmin(PREV_PROF);
 			if(dd < d && !suivants[j].present.getSeMord())
 			{
 				d = dd;
@@ -89,30 +94,10 @@ public class Config{
 			}
 			}
 		}
-		if(suivants[i] != null)
-		{
 		present = suivants[i].present;
 		suivants = suivants[i].suivants;
-		if(d>0)
-		{
 		this.ajout();
-		}
-		}
 
-		if(d==1000)
-		{
-			System.out.print(" --- ");
-			for(int j=0;j<4;j++)
-			{
-				int [] vel = vitesses.get(j);
-				Etat u = new Etat(present, vel);
-				if(!u.getSeMord())
-				{
-					System.out.print("ha");
-					return vel;
-				}
-			}
-		}
 		return vitesses.get(i);
 	}
 

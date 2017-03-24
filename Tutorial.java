@@ -1,5 +1,6 @@
 import java.awt.Graphics;
 import java.awt.Color;
+import java.util.*;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
@@ -15,7 +16,7 @@ public class Tutorial extends JPanel implements ActionListener{
 
 	int x=150, y=250;
 
-	Serpent s = new Serpent(t);
+	Creature s = new Serpent(t, 30);
 	Config c = new Config(new Etat(s, x, y));
 
 
@@ -24,32 +25,32 @@ public class Tutorial extends JPanel implements ActionListener{
 		g.setColor(Color.RED);
 		g.fillRect(x,y, 8,8);
 		g.setColor(Color.BLUE);
-		afficherSerpent(g);
+		afficherCreature(g);
 		tm.start();
+
 	}
 
-	public void afficherSerpent(Graphics g){
-		Cellule aux = s.getPremier();
-		while(aux != null)
+	public void afficherCreature(Graphics g){
+		ArrayList<int[]> aux = s.pourAfficher();
+		for(int i=0;i<aux.size(); i++)
 		{			
-			g.fillRect(aux.getPosition()[0], aux.getPosition()[1], 8, 8);
-			aux = aux.getSuivant();
+			g.fillRect(aux.get(i)[0], aux.get(i)[1], 8, 8);
 		}
 	}
 
 	public void actionPerformed(ActionEvent e){
 		int[] vel = c.find_vel();
-		int[] pos = s.getPremier().getPosition();
-		boolean b = !s.bitesItself();
+		int[] pos = s.getPosition();
+		boolean b = !s.seMord();
 		if(b && (pos[0] == x && pos[1] == y)){
-			s.grow(vel);
+			s.grandit(vel);
 			x = 10 + (int) (Math.random() * 40)*10;
 			y = 30 + (int) (Math.random() * 40)*10;
 			c = new Config(new Etat(s, x, y));
 			System.out.println(x + " " + y);
 		}
 		else if (b){
-			s.move(vel);
+			s.bouge(vel);
 		}
 		repaint();
 	}

@@ -1,15 +1,15 @@
 public class Etat{
-	private Serpent s;
+	private Creature s;
 	private int x;
 	private int y;
 	private int dist;
 	private boolean seMord;
 
-	public Etat(Serpent s, int x, int y){
+	public Etat(Creature s, int x, int y){
 		this.s = s;
 		this.x = x;
 		this.y = y;
-		this.seMord = s.bitesItself();
+		this.seMord = s.seMord();
 		this.dist = this.distance();
 	}
 
@@ -20,9 +20,9 @@ public class Etat{
 	public Etat(Etat present, int[] v){
 		this.x = present.x;
 		this.y = present.y;
-		s = present.s.copy();
-		s.move(v);
-		this.seMord = s.bitesItself();
+		s = present.s.copie();
+		s.bouge(v);
+		this.seMord = s.seMord();
 		this.dist = this.distance();
 	}
 
@@ -31,9 +31,17 @@ public class Etat{
 		return dist;
 	}
 
+	public void setDistance(int d)
+	{
+		dist = d;
+	}
+
+	public void setSeMord(boolean b)
+	{
+		seMord = b;
+	}
+
 	public int distance(){
-		int xx = s.getPremier().getPosition()[0];
-		int yy = s.getPremier().getPosition()[1];
-		return Math.abs(xx - x) + Math.abs(yy - y);
+		return s.distance(x, y);
 	}
 }

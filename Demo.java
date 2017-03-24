@@ -3,9 +3,9 @@ public class Demo
 	public static void main(String[] args) {
 		int[] t = {10,200};
 		Serpent s = new Serpent(t);
-		s.grow(t);
-		s.move(t);
-		s.move(t);
+		s.grandit(t);
+		s.bouge(t);
+		s.bouge(t);
 		s.afficher();
 
 		// Serpent tt = s.copy();
