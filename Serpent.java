@@ -6,8 +6,6 @@ public class Serpent implements Creature
 	private Cellule premier;
 	private Cellule dernier;
 
-
-
 	public Serpent(int[] x){
 		premier = new Cellule(x);
 		dernier = premier;
@@ -17,7 +15,7 @@ public class Serpent implements Creature
 		dernier = premier;
 		for(int i=0;i<j;i++)
 		{
-			this.grandit(Creature.vel_down);
+			this.grandit(Creature.down);
 		}
 	}
 
@@ -62,26 +60,6 @@ public class Serpent implements Creature
 		return premier;
 	}
 
-	public int[] find_vel(int x, int y){
-		int xx = premier.getPosition()[0];
-		int yy = premier.getPosition()[1];
-
-		if(xx > x && !premier.appartient(xx+vel_left[0], yy+vel_left[1])) {
-			return vel_left;
-		}
-		if(xx<x && !premier.appartient(xx+vel_right[0], yy+vel_right[1])) {
-			return vel_right;
-		}
-		if(yy>y && !premier.appartient(xx+vel_up[0], yy+vel_up[1])) {
-			return vel_up;
-		}
-		
-		if(yy< y && !premier.appartient(xx+vel_down[0], yy+vel_down[1])){
-			return vel_down;
-		}
-		return vel_down;
-	
-	}
 
 	public int[] getPosition(){
 		return premier.getPosition();

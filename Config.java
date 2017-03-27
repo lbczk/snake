@@ -5,13 +5,13 @@ public class Config{
 	Config[] suivants = new Config[4];
 
 	static ArrayList<int[]> vitesses = new ArrayList<int[]>();
-	final int PREV_PROF = 6;
+	final int PREV_PROF = 8;
 
 	static void setVitesses(){
-		vitesses.add(Creature.vel_down);
-		vitesses.add(Creature.vel_left);
-		vitesses.add(Creature.vel_right);
-		vitesses.add(Creature.vel_up);
+		vitesses.add(Creature.down);
+		vitesses.add(Creature.left);
+		vitesses.add(Creature.right);
+		vitesses.add(Creature.up);
 	}
 
 	public Config(Etat present){
@@ -78,7 +78,7 @@ public class Config{
 		return res;
 	}
 
-	public int[] find_vel()
+	public int[] prochaineVitesse()
 	{
 		int i=0;
 		int d=1000;
@@ -87,11 +87,7 @@ public class Config{
 			if(suivants[j] != null)
 			{
 			int dd = suivants[j].argmin(PREV_PROF);
-			if(dd < d && !suivants[j].present.getSeMord())
-			{
-				d = dd;
-				i=j;
-			}
+			if(dd < d) {d=dd; i=j;}
 			}
 		}
 		present = suivants[i].present;
