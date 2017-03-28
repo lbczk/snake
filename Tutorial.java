@@ -1,5 +1,7 @@
 import java.awt.Graphics;
 import java.awt.Color;
+import java.awt.Point;
+
 import java.util.*;
 
 import java.awt.event.ActionListener;
@@ -15,11 +17,11 @@ public class Tutorial extends JPanel implements ActionListener, KeyListener
 
 	Timer tm = new Timer(50, this);
 
-	int[] t = {30,10};
+	Point t = new Point(30,10);
 
 	int x=150, y=250;
 
-	ArrayList<int[]> targets = new ArrayList<int[]>();
+	ArrayList<Point> targets = new ArrayList<Point>();
 
 	Creature s = new Serpent(t, 30);
 
@@ -46,28 +48,28 @@ public class Tutorial extends JPanel implements ActionListener, KeyListener
 		g.setColor(Color.BLUE);
 		afficherCreature(g);
 		String string = "Score: " + score +", Time: " + ticks++ ;
-		g.drawString(string, (int) (getWidth() / 2 - string.length() * 2.5f), 10);
+		g.drawString(string, (int) (getWidth() - string.length() * 2.5f), 10);
 		tm.start();
 
 	}
 
 	public void afficherCreature(Graphics g){
-		ArrayList<int[]> aux = s.pourAfficher();
+		ArrayList<Point> aux = s.pourAfficher();
 		g.setColor(Color.MAGENTA);
-		g.fillRect(aux.get(0)[0], aux.get(0)[1], 8, 8);
+		g.fillRect(aux.get(0).x, aux.get(0).y, 8, 8);
 		g.setColor(Color.BLUE);
 		for(int i=1;i<aux.size(); i++)
 		{			
-			g.fillRect(aux.get(i)[0], aux.get(i)[1], 8, 8);
+			g.fillRect(aux.get(i).x, aux.get(i).y, 8, 8);
 		}
 	}
 
 	public void actionPerformed(ActionEvent e){
 		ticks++;
 		int[] vitesse = c.prochaineVitesse();
-		int[] pos = s.getPosition();
+		Point pos = s.getPosition();
 		boolean b = !s.seMord();
-		if(b && (pos[0] == x && pos[1] == y)){
+		if(b && (pos.x == x && pos.y == y)){
 			score +=10;
 			s.grandit(vitesse);
 			x = 10 + (int) (Math.random() * 40)*10;

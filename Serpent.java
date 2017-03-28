@@ -1,4 +1,5 @@
 import java.util.*;
+import java.awt.Point;
 
 public class Serpent implements Creature
 // implemente le serpent en utilisant des listes doublement chainees
@@ -6,12 +7,12 @@ public class Serpent implements Creature
 	private Cellule premier;
 	private Cellule dernier;
 
-	public Serpent(int[] x){
+	public Serpent(Point x){
 		premier = new Cellule(x);
 		dernier = premier;
 	}
-	public Serpent(int[] x, int j){
-		premier = new Cellule(x);
+	public Serpent(Point p, int j){
+		premier = new Cellule(p);
 		dernier = premier;
 		for(int i=0;i<j;i++)
 		{
@@ -31,8 +32,8 @@ public class Serpent implements Creature
 	}
 
 	public void grandit(int[] vel){
-		int[] head_pos = premier.getPosition();
-		int[] new_pos = {head_pos[0] + vel[0], head_pos[1] + vel[1]};
+		Point head_pos = premier.getPosition();
+		Point new_pos = new Point(head_pos.x + vel[0], head_pos.y + vel[1]);
 		Cellule a = new Cellule(new_pos, null, premier);
 		premier.setPrecedent(a);
 		premier = a;
@@ -49,9 +50,9 @@ public class Serpent implements Creature
 		premier.afficher();
 	}
 
-	public ArrayList<int[]> pourAfficher()
+	public ArrayList<Point> pourAfficher()
 	{
-		ArrayList<int[]> res = new ArrayList<int[]>();
+		ArrayList<Point> res = new ArrayList<Point>();
 		premier.pourAfficher(res);
 		return res;
 	}
@@ -61,22 +62,20 @@ public class Serpent implements Creature
 	}
 
 
-	public int[] getPosition(){
+	public Point getPosition(){
 		return premier.getPosition();
 	}
 
 	public int distance(int x, int y)
 	{
-		int xx = this.getPremier().getPosition()[0];
-		int yy = this.getPremier().getPosition()[1];
+		int xx = this.getPremier().getPosition().x;
+		int yy = this.getPremier().getPosition().y;
 		return Math.abs(xx - x) + Math.abs(yy - y);
 
 	}
 
 	public boolean seMord(){
-		int xx = premier.getPosition()[0];
-		int yy = premier.getPosition()[1];
-		return premier.appartient(xx, yy);
+		return premier.appartient(premier.getPosition());
 	}
 
 }

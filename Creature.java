@@ -1,4 +1,5 @@
 import java.util.*;
+import java.awt.Point;
 
 
 public interface Creature
@@ -12,7 +13,7 @@ public interface Creature
 	public int distance(int x, int y);
 	public Creature copie();
 	public boolean seMord();
-	public ArrayList<int[]> pourAfficher();
-	public int[] getPosition();
+	public ArrayList<Point> pourAfficher();
+	public Point getPosition();
 
 }
