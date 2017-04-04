@@ -6,18 +6,21 @@ public class Serpent implements Creature
 {
 	private Cellule premier;
 	private Cellule dernier;
+	private int dim=700;
 
-	public Serpent(Point x){
+	public Serpent(Point x, int dim){
 		premier = new Cellule(x);
 		dernier = premier;
+		this.dim = dim;
 	}
-	public Serpent(Point p, int j){
+	public Serpent(Point p, int j, int dim){
 		premier = new Cellule(p);
 		dernier = premier;
 		for(int i=0;i<j;i++)
 		{
 			this.grandit(Creature.down);
 		}
+		this.dim=dim;
 	}
 
 	public Serpent(){
@@ -28,6 +31,7 @@ public class Serpent implements Creature
 		Cellule[] cop = premier.copie();
 		s.premier = cop[0];
 		s.dernier = cop[1];
+		s.dim = dim;
 		return s;
 	}
 
@@ -76,6 +80,11 @@ public class Serpent implements Creature
 
 	public boolean seMord(){
 		return premier.appartient(premier.getPosition());
+	}
+
+	public boolean seCogne(ArrayList<Point> t)
+	{
+		return t.contains(premier.getPosition());
 	}
 
 }

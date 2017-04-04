@@ -3,6 +3,7 @@ import java.awt.Color;
 import java.awt.Point;
 
 import java.util.*;
+import java.io.IOException;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
@@ -12,49 +13,92 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
-public class Tutorial extends JPanel implements ActionListener, KeyListener
+import decor.Decor;
+
+public class Tutorial extends JPanel implements ActionListener, KeyListener 
 {
 
 	Timer tm = new Timer(50, this);
 
-	Point t = new Point(30,10);
+	Point t = new Point(30,10), tt = new Point(60,10);
 
-	int x=150, y=250;
+	Point target = new Point(150,200);
+	
+	int dim=600;
 
 	ArrayList<Point> targets = new ArrayList<Point>();
-
-	Creature s = new Serpent(t, 30);
-
-	Config c = new Config(new Etat(s, x, y));
-
-	int score=0, ticks=0;
+	ArrayList<Point> walls = new ArrayList<Point>();
 
 
-	public Tutorial()
+	Creature s, st = new Serpent(tt, 30, dim);
+
+	// Config c = new Config(new Etat(st, target.x, target.y));
+
+	int score=0, ticks=0, cc=0;
+	
+	int[] direction = Creature.down;
+
+	Decor im;
+
+	public static final Color SEASHELL = new Color(251, 242, 158);
+	public static final Color SOMECOLOR = new Color(200, 20, 158);
+	public static final Color OTHERCOLOR = new Color(1, 11, 1);
+
+
+	boolean over,paused;
+
+	public Tutorial() throws IOException 
 	{
 		JFrame jf = new JFrame();
 		jf.setTitle("Snake 1.0");
 		jf.setVisible(true);
-		jf.setSize(500,500);
+		jf.setSize(dim,dim);
 		jf.setResizable(false);
 		jf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		jf.add(this);
+		jf.addKeyListener(this);
+		im = new Decor("sierp.png", 60, 60);
+
+		walls.add(new Point(0,0));
+		startGame();
 	}
 
-	public void paintComponent(Graphics g){
+	public void startGame()  throws  IOException 
+	{
+		over = false;
+		paused = false;
+		score = 0;
+		ticks = 0;
+		direction = Creature.down;
+		targets = im.toPointArray(200,300);
+		walls = im.toPointArray(0,170);
+		s = new Serpent(t, 30, dim);
+		tm.start();
+		System.out.println("SIZE of targets : " + targets.size());
+		System.out.println("SIZE of walls : " + walls.size());
+
+	}
+
+	public void paintComponent(Graphics g)  
+	{
 		super.paintComponent(g);
+		g.setColor(SEASHELL);
+		g.fillRect(0, 0, dim, dim);
+		afficherEnv(g);
 		g.setColor(Color.RED);
-		g.fillRect(x,y, 8,8);
+		g.fillRect(target.x,target.y, 8,8);
 		g.setColor(Color.BLUE);
 		afficherCreature(g);
-		String string = "Score: " + score +", Time: " + ticks++ ;
-		g.drawString(string, (int) (getWidth() - string.length() * 2.5f), 10);
+		String string = "Score: " + score;
+		g.drawString(string, (int) (450 - string.length() * 2.5f), 450);
 		tm.start();
 
 	}
 
-	public void afficherCreature(Graphics g){
+	public void afficherCreature(Graphics g)
+	{
 		ArrayList<Point> aux = s.pourAfficher();
+		//aux.addAll(st.pourAfficher());
 		g.setColor(Color.MAGENTA);
 		g.fillRect(aux.get(0).x, aux.get(0).y, 8, 8);
 		g.setColor(Color.BLUE);
@@ -64,26 +108,58 @@ public class Tutorial extends JPanel implements ActionListener, KeyListener
 		}
 	}
 
-	public void actionPerformed(ActionEvent e){
-		ticks++;
-		int[] vitesse = c.prochaineVitesse();
-		Point pos = s.getPosition();
-		boolean b = !s.seMord();
-		if(b && (pos.x == x && pos.y == y)){
-			score +=10;
-			s.grandit(vitesse);
-			x = 10 + (int) (Math.random() * 40)*10;
-			y = 50 + (int) (Math.random() * 40)*10;
-			c = new Config(new Etat(s, x, y));
-			System.out.println(x + " " + y);
+	public void afficherEnv(Graphics g)
+	{
+		g.setColor(SOMECOLOR);	
+		for(int i=1;i<targets.size(); i++)
+		{		
+			g.fillRect(targets.get(i).x, targets.get(i).y, 8, 8);
 		}
-		else if (b){
-			s.bouge(vitesse);
+
+		g.setColor(OTHERCOLOR);	
+		for(int i=1;i<walls.size(); i++)
+		{		
+			g.fillRect(walls.get(i).x, walls.get(i).y, 8, 8);
 		}
-		repaint();
 	}
 
-	public static void main(String[] args) {
+	public void actionPerformed(ActionEvent e){
+		repaint();
+		ticks++;
+		Point pos = s.getPosition();
+		boolean b = s.seMord();
+		if(b || s.seCogne(walls))over = true;
+		if (!over && !paused)
+		{
+		if(!b && (targets.contains(pos))){
+			score +=1;
+			cc++;
+			if(cc %8 == 0){s.grandit(direction);}
+			else{s.bouge(direction);}
+			targets.remove(pos);			
+		}
+		else if (!b){
+			s.bouge(direction);
+		}
+		}
+
+		// int[] direction2 = c.prochaineVitesse();
+		// pos = st.getPosition();
+		// if(b && (pos.x == x && pos.y == y)){
+		// 	score +=10;
+		// 	st.grandit(direction2);
+		// 	x = 10 + (int) (Math.random() * 40)*10;
+		// 	y = 50 + (int) (Math.random() * 40)*10;
+		// 	c = new Config(new Etat(st, x, y));
+		// 	System.out.println(x + " " + y);
+		// }
+		// else if (b){
+		// 	st.bouge(direction2);
+		// }
+
+	}
+
+	public static void main(String[] args)  throws  IOException {
 		new Tutorial();
 	}
 
@@ -99,6 +175,23 @@ public class Tutorial extends JPanel implements ActionListener, KeyListener
 	@Override
 	public void keyPressed(KeyEvent e)
 	{
+		int key_code = e.getKeyCode();
+		if(key_code == KeyEvent.VK_LEFT && direction != Creature.right){direction=Creature.left;}
+		if(key_code == KeyEvent.VK_RIGHT && direction != Creature.left){direction=Creature.right;}
+		if(key_code == KeyEvent.VK_UP && direction != Creature.down){direction=Creature.up;}
+		if(key_code == KeyEvent.VK_DOWN && direction != Creature.up){direction=Creature.down;}
+
+		if (key_code == KeyEvent.VK_SPACE)
+		{
+			if (over)
+			{
+				try{startGame();} catch(IOException ee){}
+			}
+			else
+			{
+				paused = !paused;
+			}
+		}
 	}
 }
 
