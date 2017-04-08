@@ -28,9 +28,9 @@ public class Tutorial extends JPanel implements ActionListener, KeyListener
 
 	ArrayList<Point> targets = new ArrayList<Point>();
 	ArrayList<Point> walls = new ArrayList<Point>();
+	ArrayList<Point> aux = new ArrayList<Point>();
 
-
-	Creature s, st = new Serpent(tt, 30, dim);
+	Creature s;
 
 	// Config c = new Config(new Etat(st, target.x, target.y));
 
@@ -57,8 +57,9 @@ public class Tutorial extends JPanel implements ActionListener, KeyListener
 		jf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		jf.add(this);
 		jf.addKeyListener(this);
-		im = new Decor("sierp.png", 60, 60);
-
+		im = new Decor("ip2.png", 60, 60);
+		targets = im.toPointArray(200,300);
+		walls = im.toPointArray(0,170);
 		walls.add(new Point(0,0));
 		startGame();
 	}
@@ -70,13 +71,10 @@ public class Tutorial extends JPanel implements ActionListener, KeyListener
 		score = 0;
 		ticks = 0;
 		direction = Creature.down;
-		targets = im.toPointArray(200,300);
-		walls = im.toPointArray(0,170);
-		s = new Serpent(t, 30, dim);
+		s = new Hydre(t, 20);
 		tm.start();
 		System.out.println("SIZE of targets : " + targets.size());
 		System.out.println("SIZE of walls : " + walls.size());
-
 	}
 
 	public void paintComponent(Graphics g)  
@@ -84,21 +82,21 @@ public class Tutorial extends JPanel implements ActionListener, KeyListener
 		super.paintComponent(g);
 		g.setColor(SEASHELL);
 		g.fillRect(0, 0, dim, dim);
-		afficherEnv(g);
+		afficherEnv(g, targets, SOMECOLOR);
+		afficherEnv(g, walls, OTHERCOLOR);
 		g.setColor(Color.RED);
 		g.fillRect(target.x,target.y, 8,8);
 		g.setColor(Color.BLUE);
-		afficherCreature(g);
+		if(ticks>0){afficherCreature(g);}
 		String string = "Score: " + score;
-		g.drawString(string, (int) (450 - string.length() * 2.5f), 450);
+		g.drawString(string, (int) (550 - string.length() * 2.5f), 550);
 		tm.start();
 
 	}
 
 	public void afficherCreature(Graphics g)
 	{
-		ArrayList<Point> aux = s.pourAfficher();
-		//aux.addAll(st.pourAfficher());
+		aux = s.pourAfficher();
 		g.setColor(Color.MAGENTA);
 		g.fillRect(aux.get(0).x, aux.get(0).y, 8, 8);
 		g.setColor(Color.BLUE);
@@ -108,18 +106,12 @@ public class Tutorial extends JPanel implements ActionListener, KeyListener
 		}
 	}
 
-	public void afficherEnv(Graphics g)
+	public void afficherEnv(Graphics g, ArrayList<Point> t, Color c)
 	{
-		g.setColor(SOMECOLOR);	
-		for(int i=1;i<targets.size(); i++)
+		g.setColor(c);	
+		for(int i=1;i<t.size(); i++)
 		{		
-			g.fillRect(targets.get(i).x, targets.get(i).y, 8, 8);
-		}
-
-		g.setColor(OTHERCOLOR);	
-		for(int i=1;i<walls.size(); i++)
-		{		
-			g.fillRect(walls.get(i).x, walls.get(i).y, 8, 8);
+			g.fillRect(t.get(i).x, t.get(i).y, 8, 8);
 		}
 	}
 
