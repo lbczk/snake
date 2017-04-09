@@ -16,7 +16,7 @@ import javax.swing.Timer;
 
 import decor.Decor;
 @SuppressWarnings("serial")
-public class Tutorial extends JPanel implements ActionListener, KeyListener 
+public class Game extends JPanel implements ActionListener, KeyListener 
 {
 
 	Timer tm = new Timer(80, this);
@@ -47,7 +47,7 @@ public class Tutorial extends JPanel implements ActionListener, KeyListener
  	Font scoreFont = new Font ("Courier New", 1, 19);
 	boolean over,paused;
 
-	public Tutorial(String[] args) throws IOException 
+	public Game(String[] args) throws IOException 
 	{
 		JFrame jf = new JFrame();
 		jf.setTitle("Snake 1.0");
@@ -165,7 +165,7 @@ public class Tutorial extends JPanel implements ActionListener, KeyListener
 	}
 
 	public static void main(String[] args)  throws  IOException {
-		new Tutorial(args);
+		new Game(args);
 	}
 
 	public void nouvelle_fraise()
