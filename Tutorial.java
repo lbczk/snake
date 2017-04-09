@@ -15,13 +15,13 @@ import javax.swing.JPanel;
 import javax.swing.Timer;
 
 import decor.Decor;
-
+@SuppressWarnings("serial")
 public class Tutorial extends JPanel implements ActionListener, KeyListener 
 {
 
 	Timer tm = new Timer(80, this);
 
-	Point t = new Point(30,10), tt = new Point(60,10);
+	Point t = new Point(100,20), tt = new Point(60,10);
 
 	Point target = new Point(150,200);
 	
@@ -44,7 +44,7 @@ public class Tutorial extends JPanel implements ActionListener, KeyListener
 	public static final Color SEASHELL = new Color(251, 242, 158);
 	public static final Color SOMECOLOR = new Color(200, 20, 158);
 	public static final Color OTHERCOLOR = new Color(1, 11, 1);
- 	Font scoreFont = new Font ("Courier New", 1, 20);
+ 	Font scoreFont = new Font ("Courier New", 1, 19);
 	boolean over,paused;
 
 	public Tutorial(String[] args) throws IOException 
@@ -52,17 +52,16 @@ public class Tutorial extends JPanel implements ActionListener, KeyListener
 		JFrame jf = new JFrame();
 		jf.setTitle("Snake 1.0");
 		jf.setVisible(true);
-		jf.setSize(dim,dim);
+		jf.setSize(dim,dim+21);
 		jf.setResizable(false);
 		jf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		jf.add(this);
 		jf.addKeyListener(this);
-		im = new Decor("ip2.png", 60, 60);
+		im = new Decor("ip22.png", 60, 60);
 		walls = im.toPointArray(200,300);
 		walls.addAll(im.toPointArray(0,170));
 		walls.add(new Point(0,0));
 		this.args = args;
-		nouvelle_fraise(20);
 		startGame();
 	}
 
@@ -77,6 +76,8 @@ public class Tutorial extends JPanel implements ActionListener, KeyListener
 			s = new Hydre(t);
 		}
 		else{s=new Serpent(t);}
+		targets.clear();
+		nouvelle_fraise(100);
 		tm.start();
 		// System.out.println("SIZE of targets : " + targets.size());
 		// System.out.println("SIZE of walls : " + walls.size());
@@ -91,10 +92,14 @@ public class Tutorial extends JPanel implements ActionListener, KeyListener
 		afficherEnv(g, walls, OTHERCOLOR);
 		g.setColor(Color.BLUE);
 		if(ticks>0){afficherCreature(g);}
-		String string = "Score: " + score;
+		// write score part
+		String string = "Score:"+ score;
+		g.setColor(SEASHELL);
+		g.fillRect(470, 570, 100, 19);
 		g.setColor(Color.RED);
 		g.setFont(scoreFont);
-		g.drawString(string, (int) (550 - string.length() * 15f), 550);
+		g.drawString(string, 471, 585);
+
 		tm.start();
 
 	}
@@ -114,9 +119,9 @@ public class Tutorial extends JPanel implements ActionListener, KeyListener
 	public void afficherEnv(Graphics g, ArrayList<Point> t, Color c)
 	{
 		g.setColor(c);	
-		for(int i=1;i<t.size(); i++)
+		for(Point p : t)
 		{		
-			g.fillRect(t.get(i).x, t.get(i).y, 8, 8);
+			g.fillRect(p.x, p.y, 8, 8);
 		}
 	}
 
@@ -131,10 +136,12 @@ public class Tutorial extends JPanel implements ActionListener, KeyListener
 		if(!b && (targets.contains(pos))){
 			score +=1;
 			cc++;
-			if(cc % 2 == 0){s.grandit(direction);}
+			if(cc % 1 == 0){s.grandit(direction);}
 			else{s.bouge(direction);}
 			targets.remove(pos);
+			if(targets.size()<30){
 			nouvelle_fraise();
+			}
 
 		}
 		else if (!b){
@@ -155,7 +162,6 @@ public class Tutorial extends JPanel implements ActionListener, KeyListener
 		// else if (b){
 		// 	st.bouge(direction2);
 		// }
-
 	}
 
 	public static void main(String[] args)  throws  IOException {
@@ -194,10 +200,10 @@ public class Tutorial extends JPanel implements ActionListener, KeyListener
 	public void keyPressed(KeyEvent e)
 	{
 		int key_code = e.getKeyCode();
-		if(key_code == KeyEvent.VK_LEFT && direction != Creature.right){direction=Creature.left;}
-		if(key_code == KeyEvent.VK_RIGHT && direction != Creature.left){direction=Creature.right;}
-		if(key_code == KeyEvent.VK_UP && direction != Creature.down){direction=Creature.up;}
-		if(key_code == KeyEvent.VK_DOWN && direction != Creature.up){direction=Creature.down;}
+		if(key_code == KeyEvent.VK_LEFT && (paused || direction != Creature.right)){direction=Creature.left;}
+		if(key_code == KeyEvent.VK_RIGHT && (paused || direction != Creature.left)){direction=Creature.right;}
+		if(key_code == KeyEvent.VK_UP && (paused || direction != Creature.down)){direction=Creature.up;}
+		if(key_code == KeyEvent.VK_DOWN && (paused || direction != Creature.up)){direction=Creature.down;}
 
 		if (key_code == KeyEvent.VK_SPACE)
 		{
