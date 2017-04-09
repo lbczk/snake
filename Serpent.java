@@ -1,8 +1,8 @@
 import java.util.*;
 import java.awt.Point;
+import java.awt.Color;
 
 public class Serpent implements Creature
-// implemente le serpent en utilisant des listes doublement chainees
 {
 	private Cellule premier;
 	private Cellule dernier;
@@ -10,11 +10,7 @@ public class Serpent implements Creature
 	public Serpent(Point x){
 		premier = new Cellule(x);
 		dernier = premier;
-	}
-	public Serpent(Point p, int j){
-		premier = new Cellule(p);
-		dernier = premier;
-		for(int i=0;i<j;i++)
+		for(int i=0;i<20;i++)
 		{
 			this.grandit(Creature.down);
 		}
@@ -23,13 +19,7 @@ public class Serpent implements Creature
 	public Serpent(){
 	}
 
-	public Serpent copie(){
-		Serpent s = new Serpent();
-		Cellule[] cop = premier.copie();
-		s.premier = cop[0];
-		s.dernier = cop[1];
-		return s;
-	}
+	public void changeTete(){}
 
 	public void grandit(int[] vel){
 		Point head_pos = premier.getPosition();
@@ -50,9 +40,9 @@ public class Serpent implements Creature
 		premier.afficher();
 	}
 
-	public ArrayList<Point> pourAfficher()
+	public ArrayList<ColorPoint> pourAfficher()
 	{
-		ArrayList<Point> res = new ArrayList<Point>();
+		ArrayList<ColorPoint> res = new ArrayList<ColorPoint>();
 		premier.pourAfficher(res);
 		return res;
 	}
@@ -67,11 +57,20 @@ public class Serpent implements Creature
 	}
 
 	public int distance(int x, int y)
-	{
+	{// cette méthode n'est pas à faire dans le TP
 		int xx = this.getPremier().getPosition().x;
 		int yy = this.getPremier().getPosition().y;
 		return Math.abs(xx - x) + Math.abs(yy - y);
 
+	}
+
+	public Serpent copie()
+	{// cette méthode n'est pas à faire dans le TP
+		Serpent s = new Serpent();
+		Cellule[] cop = premier.copie();
+		s.premier = cop[0];
+		s.dernier = cop[1];
+		return s;
 	}
 
 	public boolean seMord(){
@@ -82,5 +81,7 @@ public class Serpent implements Creature
 	{
 		return t.contains(premier.getPosition());
 	}
+
+	public String debugInfo(){return "";}
 
 }

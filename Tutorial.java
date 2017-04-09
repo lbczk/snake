@@ -1,6 +1,7 @@
 import java.awt.Graphics;
 import java.awt.Color;
 import java.awt.Point;
+import java.awt.Font;
 
 import java.util.*;
 import java.io.IOException;
@@ -18,7 +19,7 @@ import decor.Decor;
 public class Tutorial extends JPanel implements ActionListener, KeyListener 
 {
 
-	Timer tm = new Timer(50, this);
+	Timer tm = new Timer(80, this);
 
 	Point t = new Point(30,10), tt = new Point(60,10);
 
@@ -28,26 +29,25 @@ public class Tutorial extends JPanel implements ActionListener, KeyListener
 
 	ArrayList<Point> targets = new ArrayList<Point>();
 	ArrayList<Point> walls = new ArrayList<Point>();
-	ArrayList<Point> aux = new ArrayList<Point>();
+	ArrayList<ColorPoint> aux = new ArrayList<ColorPoint>();
 
 	Creature s;
-
-	// Config c = new Config(new Etat(st, target.x, target.y));
 
 	int score=0, ticks=0, cc=0;
 	
 	int[] direction = Creature.down;
+
+	String[] args;
 
 	Decor im;
 
 	public static final Color SEASHELL = new Color(251, 242, 158);
 	public static final Color SOMECOLOR = new Color(200, 20, 158);
 	public static final Color OTHERCOLOR = new Color(1, 11, 1);
-
-
+ 	Font scoreFont = new Font ("Courier New", 1, 20);
 	boolean over,paused;
 
-	public Tutorial() throws IOException 
+	public Tutorial(String[] args) throws IOException 
 	{
 		JFrame jf = new JFrame();
 		jf.setTitle("Snake 1.0");
@@ -58,9 +58,11 @@ public class Tutorial extends JPanel implements ActionListener, KeyListener
 		jf.add(this);
 		jf.addKeyListener(this);
 		im = new Decor("ip2.png", 60, 60);
-		targets = im.toPointArray(200,300);
-		walls = im.toPointArray(0,170);
+		walls = im.toPointArray(200,300);
+		walls.addAll(im.toPointArray(0,170));
 		walls.add(new Point(0,0));
+		this.args = args;
+		nouvelle_fraise(20);
 		startGame();
 	}
 
@@ -71,10 +73,13 @@ public class Tutorial extends JPanel implements ActionListener, KeyListener
 		score = 0;
 		ticks = 0;
 		direction = Creature.down;
-		s = new Hydre(t, 20);
+		if(args.length>0  && args[0].equals("h")){
+			s = new Hydre(t);
+		}
+		else{s=new Serpent(t);}
 		tm.start();
-		System.out.println("SIZE of targets : " + targets.size());
-		System.out.println("SIZE of walls : " + walls.size());
+		// System.out.println("SIZE of targets : " + targets.size());
+		// System.out.println("SIZE of walls : " + walls.size());
 	}
 
 	public void paintComponent(Graphics g)  
@@ -84,12 +89,12 @@ public class Tutorial extends JPanel implements ActionListener, KeyListener
 		g.fillRect(0, 0, dim, dim);
 		afficherEnv(g, targets, SOMECOLOR);
 		afficherEnv(g, walls, OTHERCOLOR);
-		g.setColor(Color.RED);
-		g.fillRect(target.x,target.y, 8,8);
 		g.setColor(Color.BLUE);
 		if(ticks>0){afficherCreature(g);}
 		String string = "Score: " + score;
-		g.drawString(string, (int) (550 - string.length() * 2.5f), 550);
+		g.setColor(Color.RED);
+		g.setFont(scoreFont);
+		g.drawString(string, (int) (550 - string.length() * 15f), 550);
 		tm.start();
 
 	}
@@ -97,13 +102,13 @@ public class Tutorial extends JPanel implements ActionListener, KeyListener
 	public void afficherCreature(Graphics g)
 	{
 		aux = s.pourAfficher();
-		g.setColor(Color.MAGENTA);
-		g.fillRect(aux.get(0).x, aux.get(0).y, 8, 8);
-		g.setColor(Color.BLUE);
-		for(int i=1;i<aux.size(); i++)
+		for(int i=0;i<aux.size(); i++)
 		{			
+			g.setColor(aux.get(i).getColor());
 			g.fillRect(aux.get(i).x, aux.get(i).y, 8, 8);
 		}
+		g.setColor(Color.MAGENTA);
+		g.fillRect(s.getPosition().x, s.getPosition().y, 8, 8);
 	}
 
 	public void afficherEnv(Graphics g, ArrayList<Point> t, Color c)
@@ -126,9 +131,11 @@ public class Tutorial extends JPanel implements ActionListener, KeyListener
 		if(!b && (targets.contains(pos))){
 			score +=1;
 			cc++;
-			if(cc %8 == 0){s.grandit(direction);}
+			if(cc % 2 == 0){s.grandit(direction);}
 			else{s.bouge(direction);}
-			targets.remove(pos);			
+			targets.remove(pos);
+			nouvelle_fraise();
+
 		}
 		else if (!b){
 			s.bouge(direction);
@@ -152,7 +159,26 @@ public class Tutorial extends JPanel implements ActionListener, KeyListener
 	}
 
 	public static void main(String[] args)  throws  IOException {
-		new Tutorial();
+		new Tutorial(args);
+	}
+
+	public void nouvelle_fraise()
+	{
+		boolean b = true;
+		Point p = new Point(0,0);
+		while(b)
+		{
+			int x = (int) (Math.random() * 60) *10;
+			int y = (int) (Math.random() * 60) *10;
+			p = new Point(x,y);
+			b = walls.contains(p);
+		}
+		targets.add(p);
+	}
+
+	public void nouvelle_fraise(int n)
+	{
+		for(int i=0;i<n;i++){nouvelle_fraise();}
 	}
 
 	@Override
@@ -183,6 +209,14 @@ public class Tutorial extends JPanel implements ActionListener, KeyListener
 			{
 				paused = !paused;
 			}
+		}
+		if(paused && key_code == KeyEvent.VK_C)
+		{
+			s.changeTete();
+		}
+		if(paused && key_code == KeyEvent.VK_P)
+		{
+			System.out.println(s.debugInfo());
 		}
 	}
 }

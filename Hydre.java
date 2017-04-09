@@ -1,69 +1,115 @@
 import java.util.*;
 import java.awt.Point;
+import java.awt.Color;
 
 public class Hydre implements Creature
 {
-	public ArrayList<CelluleH> tetes = new ArrayList<CelluleH>();
-	private int i=0;
+	public ArrayList<CelluleB> tetes = new ArrayList<CelluleB>();
+	private int tete_index=0;
+	private int count;
 
 
 	public Hydre(Point p){
-		CelluleH c = new CelluleH(p);
+		CelluleB c = new CelluleB(p);
 		Point pp = new Point(p.x + Creature.left[0],p.y + Creature.left[1]);
-		CelluleH d = new CelluleH(pp,c, null);
+		CelluleB d = new CelluleB(pp, c);
+		// d.ajout(c);
+		// c.ajout(d);
 		tetes.add(c);
 		tetes.add(d);
+		for(int i=0;i<20;i++)
+		{
+			this.grandit(Creature.down, false);
+		}
 	}
 
-	public Hydre(Point p, int j){
-		this(p);
-		for(int i=0;i<j;i++)
+	public void changeTete()
+	{
+		tete_index = (tete_index+1) % tetes.size();
+	}
+
+	public ArrayList<CelluleB> getTete(){return tetes;};
+
+	public void grandit(int[] vel, boolean b)
+	{
+		CelluleB cur = tetes.get(tete_index);
+		Point head_pos = cur.getPosition();
+		Point new_pos = new Point(head_pos.x + vel[0], head_pos.y + vel[1]);
+		CelluleB a = new CelluleB(new_pos, cur);
+		tetes.set(tete_index, a);
+		if(b)
 		{
-			this.grandit(Creature.down);
+			if((count % 2) != 0){count++;}
+			else if(a.getVoisins().get(0).getVoisins().size()>0){
+				tetes.add(a.getVoisins().get(0));
+			};
 		}
 	}
 
 	public void grandit(int[] vel)
 	{
-		CelluleH tetei = tetes.get(i);
-		Point head_pos = tetei.getPosition();
-		Point new_pos = new Point(head_pos.x + vel[0], head_pos.y + vel[1]);
-		CelluleH a = new CelluleH(new_pos, tetei, null);
-		tetei.setSuivantG(a);
-		tetes.set(i, a);
+		grandit(vel, true);
 	}
 	
 	public void bouge(int[] vel)
 	{
-		grandit(vel);
-		int j=(i+1) % tetes.size();
-		tetes.set(j, tetes.get(j).getPrecedent());
-		// dernier.setSuivant(null);
+		grandit(vel, false);
+		tetes_update();
+	}
+
+	public void tetes_update()
+	{
+		int j = (tete_index+1) % tetes.size();
+		int h=0;
+		while((j==tete_index || tetes.get(j).getVoisins().size() != 1) && h < tetes.size())
+		{
+			j = (j+1) % tetes.size();
+			h++;
+		}
+		CelluleB tetej = tetes.get(j);
+		CelluleB cur = tetes.get(tete_index);
+		CelluleB prec = tetej.getVoisins().get(0);
+		prec.getVoisins().remove(tetej);
+		while(tetes.remove(tetej)){}
+		if(prec.getVoisins().size() == 1)
+		{
+			tetes.add(prec);
+		}
+		tete_index = tetes.indexOf(cur);
 	}
 
 	public boolean seMord(){
-		boolean b = tetes.get(i).appartient(tetes.get(i).getPosition());
-		return b;
+		int b = tetes.get(tete_index).appartient(tetes.get(tete_index).getPosition());
+		return b > 1 ? true:false;
 
 	}
 
 	public boolean seCogne(ArrayList<Point> t)
 	{
-		return t.contains(tetes.get(i).getPosition());
+		return t.contains(tetes.get(tete_index).getPosition());
 	}
 
 	public Point getPosition(){
-		return tetes.get(i).getPosition();
+		return tetes.get(tete_index).getPosition();
 	}
-	public ArrayList<Point> pourAfficher()
+
+	public ArrayList<ColorPoint> pourAfficher()
 	{
-		ArrayList<Point> res = new ArrayList<Point>();
-		tetes.get(i).pourAfficher(res);
+		ArrayList<ColorPoint> res = new ArrayList<ColorPoint>();
+		tetes.get(tete_index).pourAfficher(res);
+		for(int i=0;i<tetes.size();i++)
+		{
+			res.add(new ColorPoint(Color.GREEN, tetes.get(i).getPosition()));
+		}
 		return res;
 	}
 
-
-	public int distance(int x, int y){return 0;}
-	public Creature copie(){return new Hydre(new Point(0,0));}
+	public String debugInfo()
+	{
+		String res="Il y a "+ tetes.size() +"tetes.";
+		for(int i=0; i<tetes.size(); i++){
+			res+="\n ELEMENT "+  i+" a " +tetes.get(i).getVoisins().size()+ "voisins.";}
+		return res;
+	}
 
 }

@@ -1,7 +1,6 @@
 import java.util.*;
 import java.awt.Point;
 
-
 public interface Creature
 {
 	public static final int nb_vitesses = 4;
@@ -10,11 +9,11 @@ public interface Creature
 
 	public void grandit(int[] vel);
 	public void bouge(int[] vel);
-	public int distance(int x, int y);
-	public Creature copie();
-	public boolean seMord();
-	public ArrayList<Point> pourAfficher();
+	public ArrayList<ColorPoint> pourAfficher();
 	public Point getPosition();
+	public boolean seMord();
 	public boolean seCogne(ArrayList<Point> t);
+	public void changeTete();
+	public String debugInfo();
 
 }

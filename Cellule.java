@@ -1,5 +1,6 @@
 import java.util.*;
 import java.awt.Point;
+import java.awt.Color;
 
 public class Cellule
 {
@@ -66,9 +67,9 @@ public class Cellule
 		return res;
 	}
 
-	public void pourAfficher(ArrayList<Point> res)
+	public void pourAfficher(ArrayList<ColorPoint> res)
 	{
-		res.add(position);
+		res.add(new ColorPoint(Color.RED, position));
 		if(suivant != null)
 		{
 			suivant.pourAfficher(res);
