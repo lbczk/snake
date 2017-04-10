@@ -14,17 +14,15 @@ public class CelluleB
 	}
 
 	public CelluleB(Point position, ArrayList<CelluleB> voisins){
-		this.position = position;
+		this(position);
 		this.voisins = voisins;
-		this.mark = false;
 	}
 
 	public CelluleB(Point position, CelluleB autre)
 	{
-		this.position = position;
+		this(position);
 		this.voisins.add(autre);
 		autre.voisins.add(this);
-		this.mark = false;
 	}
 
 	public Point getPosition(){

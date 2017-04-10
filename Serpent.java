@@ -10,7 +10,7 @@ public class Serpent implements Creature
 	public Serpent(Point x){
 		premier = new Cellule(x);
 		dernier = premier;
-		for(int i=0;i<20;i++)
+		for(int i=0;i<40;i++)
 		{
 			this.grandit(Creature.down);
 		}
@@ -21,17 +21,17 @@ public class Serpent implements Creature
 
 	public void changeTete(){}
 
-	public void grandit(int[] vel){
+	public void grandit(int[] v){
 		Point head_pos = premier.getPosition();
-		Point new_pos = new Point(head_pos.x + vel[0], head_pos.y + vel[1]);
+		Point new_pos = new Point(head_pos.x + v[0], head_pos.y + v[1]);
 		Cellule a = new Cellule(new_pos, null, premier);
 		premier.setPrecedent(a);
 		premier = a;
 
 	}
 
-	public void bouge(int[] vel){
-		grandit(vel);
+	public void bouge(int[] v){
+		grandit(v);
 		dernier = dernier.getPrecedent();
 		dernier.setSuivant(null);
 	}
@@ -77,9 +77,9 @@ public class Serpent implements Creature
 		return premier.appartient(premier.getPosition());
 	}
 
-	public boolean seCogne(ArrayList<Point> t)
+	public boolean seCogne(ArrayList<Point> murs)
 	{
-		return t.contains(premier.getPosition());
+		return murs.contains(premier.getPosition());
 	}
 
 	public String debugInfo(){return "";}

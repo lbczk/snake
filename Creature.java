@@ -7,12 +7,12 @@ public interface Creature
 	static final int[] down={0,10}, right = {10,0};
 	static final int[] left={-10,0}, up={0,-10};
 
-	public void grandit(int[] vel);
-	public void bouge(int[] vel);
+	public void grandit(int[] v);
+	public void bouge(int[] v);
 	public ArrayList<ColorPoint> pourAfficher();
 	public Point getPosition();
 	public boolean seMord();
-	public boolean seCogne(ArrayList<Point> t);
+	public boolean seCogne(ArrayList<Point> murs);
 	public void changeTete();
 	public String debugInfo();
 

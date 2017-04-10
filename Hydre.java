@@ -6,18 +6,14 @@ public class Hydre implements Creature
 {
 	public ArrayList<CelluleB> tetes = new ArrayList<CelluleB>();
 	private int tete_index=0;
-	private int count;
-
 
 	public Hydre(Point p){
 		CelluleB c = new CelluleB(p);
 		Point pp = new Point(p.x + Creature.left[0],p.y + Creature.left[1]);
 		CelluleB d = new CelluleB(pp, c);
-		// d.ajout(c);
-		// c.ajout(d);
 		tetes.add(c);
 		tetes.add(d);
-		for(int i=0;i<20;i++)
+		for(int i=0;i<40;i++)
 		{
 			this.grandit(Creature.down, false);
 		}
@@ -32,16 +28,15 @@ public class Hydre implements Creature
 
 	public void grandit(int[] vel, boolean b)
 	{
-		CelluleB cur = tetes.get(tete_index);
-		Point head_pos = cur.getPosition();
-		Point new_pos = new Point(head_pos.x + vel[0], head_pos.y + vel[1]);
-		CelluleB a = new CelluleB(new_pos, cur);
-		tetes.set(tete_index, a);
+		CelluleB tete_courante = tetes.get(tete_index);
+		Point tete_pos = tete_courante.getPosition();
+		Point new_pos = new Point(tete_pos.x + vel[0], tete_pos.y + vel[1]);
+		CelluleB nouvelle_tete = new CelluleB(new_pos, tete_courante);
+		tetes.set(tete_index, nouvelle_tete);
 		if(b)
 		{
-			if((count % 2) != 0){count++;}
-			else if(a.getVoisins().get(0).getVoisins().size()>0){
-				tetes.add(a.getVoisins().get(0));
+			if(nouvelle_tete.getVoisins().get(0).getVoisins().size()>0){
+				tetes.add(nouvelle_tete.getVoisins().get(0));
 			};
 		}
 	}
@@ -61,6 +56,8 @@ public class Hydre implements Creature
 	{
 		int j = (tete_index+1) % tetes.size();
 		int h=0;
+		if(Math.random()<0.2)
+		{
 		while((j==tete_index || tetes.get(j).getVoisins().size() != 1) && h < tetes.size())
 		{
 			j = (j+1) % tetes.size();
@@ -76,6 +73,7 @@ public class Hydre implements Creature
 			tetes.add(prec);
 		}
 		tete_index = tetes.indexOf(cur);
+		}
 	}
 
 	public boolean seMord(){
@@ -97,9 +95,9 @@ public class Hydre implements Creature
 	{
 		ArrayList<ColorPoint> res = new ArrayList<ColorPoint>();
 		tetes.get(tete_index).pourAfficher(res);
-		for(int i=0;i<tetes.size();i++)
+		for(CelluleB tete:tetes)
 		{
-			res.add(new ColorPoint(Color.GREEN, tetes.get(i).getPosition()));
+			res.add(new ColorPoint(Color.GREEN, tete.getPosition()));
 		}
 		return res;
 	}

@@ -1,9 +1,17 @@
+/**
+ * Jeu de Snake/Hydre inspiré de la version de Jaryt Bustard, 
+ * disponible sur 
+ * https://github.com/Jaryt/SnakeTutorial
+ */
+
 import java.awt.Graphics;
 import java.awt.Color;
 import java.awt.Point;
 import java.awt.Font;
 
 import java.util.*;
+import java.io.FileReader;
+import java.io.BufferedReader;
 import java.io.IOException;
 
 import java.awt.event.ActionListener;
@@ -14,64 +22,62 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
-import decor.Decor;
 @SuppressWarnings("serial")
 public class Game extends JPanel implements ActionListener, KeyListener 
 {
 
 	Timer tm = new Timer(80, this);
 
-	Point t = new Point(100,20), tt = new Point(60,10);
+	Point t = new Point(100,20);
 
 	Point target = new Point(150,200);
 	
-	int dim=600;
+	int tailleBoite=600, tailleCarre=8;
+	int niveau=0;
 
 	ArrayList<Point> targets = new ArrayList<Point>();
-	ArrayList<Point> walls = new ArrayList<Point>();
+	ArrayList<Point> murs = new ArrayList<Point>();
 	ArrayList<ColorPoint> aux = new ArrayList<ColorPoint>();
 
 	Creature s;
 
-	int score=0, ticks=0, cc=0;
+	int score=0, cc=0;
 	
 	int[] direction = Creature.down;
 
 	String[] args;
 
-	Decor im;
+	String[] maps = {"empty.data", "ip22.data", "lab.data", "sierp.data"};
 
-	public static final Color SEASHELL = new Color(251, 242, 158);
-	public static final Color SOMECOLOR = new Color(200, 20, 158);
-	public static final Color OTHERCOLOR = new Color(1, 11, 1);
+	public static final Color BACKGROUND = new Color(251, 242, 158);
+	public static final Color CHERRY = new Color(100, 20, 158);
+	public static final Color MURS = new Color(1, 11, 1);
  	Font scoreFont = new Font ("Courier New", 1, 19);
-	boolean over,paused;
+	boolean started, over, paused, seMord, keyP;
 
 	public Game(String[] args) throws IOException 
 	{
 		JFrame jf = new JFrame();
 		jf.setTitle("Snake 1.0");
 		jf.setVisible(true);
-		jf.setSize(dim,dim+21);
-		jf.setResizable(false);
+		jf.setSize(tailleBoite,tailleBoite+21);
+		jf.setResizable(true);
 		jf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		jf.add(this);
 		jf.addKeyListener(this);
-		im = new Decor("ip22.png", 60, 60);
-		walls = im.toPointArray(200,300);
-		walls.addAll(im.toPointArray(0,170));
-		walls.add(new Point(0,0));
 		this.args = args;
-		startGame();
+		if(args.length > 1){niveau=Integer.parseInt(args[1]);}
+		startGame(niveau);
 	}
 
-	public void startGame()  throws  IOException 
+	public void startGame(int niveau)  throws  IOException 
 	{
 		over = false;
-		paused = false;
+		paused = true;
+		started=false;
 		score = 0;
-		ticks = 0;
 		direction = Creature.down;
+		recupererEnv(maps[niveau]);
 		if(args.length>0  && args[0].equals("h")){
 			s = new Hydre(t);
 		}
@@ -79,28 +85,26 @@ public class Game extends JPanel implements ActionListener, KeyListener
 		targets.clear();
 		nouvelle_fraise(100);
 		tm.start();
-		// System.out.println("SIZE of targets : " + targets.size());
-		// System.out.println("SIZE of walls : " + walls.size());
 	}
 
 	public void paintComponent(Graphics g)  
 	{
 		super.paintComponent(g);
-		g.setColor(SEASHELL);
-		g.fillRect(0, 0, dim, dim);
-		afficherEnv(g, targets, SOMECOLOR);
-		afficherEnv(g, walls, OTHERCOLOR);
+		tm.start();
+		g.setColor(BACKGROUND);
+		g.fillRect(0, 0, tailleBoite, tailleBoite);
+		afficherEnv(g, targets, CHERRY);
+		afficherEnv(g, murs, MURS);
 		g.setColor(Color.BLUE);
-		if(ticks>0){afficherCreature(g);}
-		// write score part
+		if(started){afficherCreature(g);}
+
+		// To print the score
 		String string = "Score:"+ score;
-		g.setColor(SEASHELL);
+		g.setColor(BACKGROUND);
 		g.fillRect(470, 570, 100, 19);
 		g.setColor(Color.RED);
 		g.setFont(scoreFont);
 		g.drawString(string, 471, 585);
-
-		tm.start();
 
 	}
 
@@ -110,10 +114,10 @@ public class Game extends JPanel implements ActionListener, KeyListener
 		for(int i=0;i<aux.size(); i++)
 		{			
 			g.setColor(aux.get(i).getColor());
-			g.fillRect(aux.get(i).x, aux.get(i).y, 8, 8);
+			g.fillRect(aux.get(i).x, aux.get(i).y, tailleCarre, tailleCarre);
 		}
 		g.setColor(Color.MAGENTA);
-		g.fillRect(s.getPosition().x, s.getPosition().y, 8, 8);
+		g.fillRect(s.getPosition().x, s.getPosition().y, tailleCarre, tailleCarre);
 	}
 
 	public void afficherEnv(Graphics g, ArrayList<Point> t, Color c)
@@ -121,19 +125,40 @@ public class Game extends JPanel implements ActionListener, KeyListener
 		g.setColor(c);	
 		for(Point p : t)
 		{		
-			g.fillRect(p.x, p.y, 8, 8);
+			g.fillRect(p.x, p.y, tailleCarre, tailleCarre);
 		}
 	}
 
+
+	public void recupererEnv(String mapname)
+	{
+		// lit le fichier mapname dans maps et ajoute les points correspondants aux murs
+		murs.clear();
+		try {
+
+			String s;
+			BufferedReader br = new BufferedReader(new FileReader("maps/"+ mapname));
+
+			while ((s = br.readLine()) != null) {
+				murs.add(new Point(Integer.valueOf(s.split(",")[0]), Integer.valueOf(s.split(",")[1])));
+			}
+			br.close();
+
+		} catch (IOException e) {e.printStackTrace();}
+
+	}
+
 	public void actionPerformed(ActionEvent e){
-		repaint();
-		ticks++;
+		keyP=false;
+		started=true;
+		if(!paused)
+		{
 		Point pos = s.getPosition();
-		boolean b = s.seMord();
-		if(b || s.seCogne(walls))over = true;
+		seMord = s.seMord();
+		if(seMord || s.seCogne(murs))over=true;
 		if (!over && !paused)
 		{
-		if(!b && (targets.contains(pos))){
+		if(!seMord && (targets.contains(pos))){
 			score +=1;
 			cc++;
 			if(cc % 1 == 0){s.grandit(direction);}
@@ -142,42 +167,29 @@ public class Game extends JPanel implements ActionListener, KeyListener
 			if(targets.size()<30){
 			nouvelle_fraise();
 			}
-
 		}
-		else if (!b){
+		else if (!seMord){
 			s.bouge(direction);
 		}
+		if(score >50){
+			try{niveau = (niveau + 1)% maps.length;
+				startGame((niveau));} catch(IOException ee){}}
 		}
-
-		// int[] direction2 = c.prochaineVitesse();
-		// pos = st.getPosition();
-		// if(b && (pos.x == x && pos.y == y)){
-		// 	score +=10;
-		// 	st.grandit(direction2);
-		// 	x = 10 + (int) (Math.random() * 40)*10;
-		// 	y = 50 + (int) (Math.random() * 40)*10;
-		// 	c = new Config(new Etat(st, x, y));
-		// 	System.out.println(x + " " + y);
-		// }
-		// else if (b){
-		// 	st.bouge(direction2);
-		// }
-	}
-
-	public static void main(String[] args)  throws  IOException {
-		new Game(args);
+		}
+		repaint();
 	}
 
 	public void nouvelle_fraise()
 	{
+		// ajoute une fraise a un endroit aleatoire sur la carte, en dehors des murs/obstacles
 		boolean b = true;
 		Point p = new Point(0,0);
 		while(b)
 		{
-			int x = (int) (Math.random() * 60) *10;
-			int y = (int) (Math.random() * 60) *10;
+			int x = (int) (Math.random() * tailleBoite/10) *10;
+			int y = (int) (Math.random() * tailleBoite/10) *10;
 			p = new Point(x,y);
-			b = walls.contains(p);
+			b = murs.contains(p);
 		}
 		targets.add(p);
 	}
@@ -188,28 +200,28 @@ public class Game extends JPanel implements ActionListener, KeyListener
 	}
 
 	@Override
-	public void keyReleased(KeyEvent e)
-	{
-	}
+	public void keyReleased(KeyEvent e){}
 
 	@Override
-	public void keyTyped(KeyEvent e)
-	{
-	}
+	public void keyTyped(KeyEvent e){}
+
 	@Override
 	public void keyPressed(KeyEvent e)
 	{
 		int key_code = e.getKeyCode();
-		if(key_code == KeyEvent.VK_LEFT && (paused || direction != Creature.right)){direction=Creature.left;}
-		if(key_code == KeyEvent.VK_RIGHT && (paused || direction != Creature.left)){direction=Creature.right;}
-		if(key_code == KeyEvent.VK_UP && (paused || direction != Creature.down)){direction=Creature.up;}
-		if(key_code == KeyEvent.VK_DOWN && (paused || direction != Creature.up)){direction=Creature.down;}
-
+		if(!keyP)
+		{
+		
+		if(key_code == KeyEvent.VK_LEFT && (paused || direction != Creature.right)){direction=Creature.left;keyP=true;}
+		if(key_code == KeyEvent.VK_RIGHT && (paused || direction != Creature.left)){direction=Creature.right;keyP=true;}
+		if(key_code == KeyEvent.VK_UP && (paused || direction != Creature.down)){direction=Creature.up;keyP=true;}
+		if(key_code == KeyEvent.VK_DOWN && (paused || direction != Creature.up)){direction=Creature.down;keyP=true;}
+		}
 		if (key_code == KeyEvent.VK_SPACE)
 		{
 			if (over)
 			{
-				try{startGame();} catch(IOException ee){}
+				try{startGame(this.niveau);} catch(IOException ee){}
 			}
 			else
 			{
@@ -219,12 +231,23 @@ public class Game extends JPanel implements ActionListener, KeyListener
 		if(paused && key_code == KeyEvent.VK_C)
 		{
 			s.changeTete();
-		}
-		if(paused && key_code == KeyEvent.VK_P)
+					}
+		if(paused && key_code == KeyEvent.VK_D)
 		{
 			System.out.println(s.debugInfo());
 		}
 	}
+
+	public static void main(String[] args)  throws  IOException {
+        javax.swing.SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+            try{
+                new Game(args);
+            }catch(IOException e){};
+            }
+        });
+    }
+
 }
 
 
